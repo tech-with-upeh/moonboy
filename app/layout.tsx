@@ -27,6 +27,9 @@ const quicksand = Quicksand({
 export const metadata: Metadata = {
   title: "Moonboy Newsletter",
   description: "Musings, thoughts, poetry, stories, and playlists. Thanks for stopping by.",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
 const THEME_INIT_SCRIPT = `
