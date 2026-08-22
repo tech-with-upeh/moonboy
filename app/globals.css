@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --sky: 201 214 247;
-  --surface: 234 239 253;
-  --ink: 44 58 140;
-  --ink-soft: 92 103 168;
-  --line: 179 193 235;
-  --rule: 92 103 168;
+  --sky: 209 223 255;
+  --surface: 209 223 255;
+  --ink: 18 52 153;
+  --ink-soft: 18 52 153;
+  --line: 18 52 153;
+  --rule: 18 52 153;
   color-scheme: light;
 }
 
@@ -33,8 +33,8 @@ body {
 }
 
 ::selection {
-  background-color: #E8B04B;
-  color: #1A1A2E;
+  background-color: rgb(var(--ink));
+  color: rgb(var(--sky));
 }
 
 a:focus-visible,
