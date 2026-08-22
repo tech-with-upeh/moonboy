@@ -32,9 +32,8 @@ export const metadata: Metadata = {
 const THEME_INIT_SCRIPT = `
 (function () {
   try {
-    var stored = localStorage.getItem("moonboy-theme");
-    var dark = stored ? stored === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (dark) document.documentElement.classList.add("dark");
+    localStorage.removeItem("moonboy-theme");
+    document.documentElement.classList.remove("dark");
   } catch (e) {}
 })();
 `;
@@ -45,11 +44,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={`${windsong.variable}`}
-    >
+    <html lang="en" suppressHydrationWarning className={windsong.variable}>
       <body className="min-h-screen bg-sky font-body text-ink antialiased">
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
