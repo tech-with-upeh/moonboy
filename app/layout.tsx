@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Mrs_Saint_Delafield, Lora, Quicksand, WindSong } from "next/font/google";
+import { Lora, Quicksand, WindSong } from "next/font/google";
 import "./globals.css";
 
-const script = Mrs_Saint_Delafield({
+const windsong = WindSong({
   subsets: ["latin"],
   weight: "400",
   variable: "--font-script",
@@ -14,13 +14,6 @@ const lora = Lora({
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-lora",
-  display: "swap",
-});
-
-const windsong = WindSong({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-windsong",
   display: "swap",
 });
 
@@ -55,7 +48,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${script.variable} ${windsong.variable}`}
+      className={`${windsong.variable}`}
     >
       <body className="min-h-screen bg-sky font-body text-ink antialiased">
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
