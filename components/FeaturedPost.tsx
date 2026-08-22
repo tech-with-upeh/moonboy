@@ -28,7 +28,7 @@ export default function FeaturedPost() {
   );
 
   return (
-    <article className="overflow-hidden border border-line bg-surface">
+    <article className="overflow-hidden bg-surface">
       <div className="flex flex-col sm:flex-row">
         <div className="aspect-[4/3] w-full sm:aspect-auto sm:w-2/5 sm:shrink-0">
           {post.link ? (
@@ -40,12 +40,8 @@ export default function FeaturedPost() {
           )}
         </div>
         <div className="flex flex-1 flex-col justify-center px-6 py-8 sm:px-10">
-          <h1 className="font-script text-4xl text-ink sm:text-5xl">
-            {post.title}
-          </h1>
-          <p className="mt-4 max-w-[440px] font-body text-[16px] leading-loose text-ink-soft">
-            {post.text}
-          </p>
+          <h1 className="font-script text-4xl text-ink sm:text-5xl">{post.title}</h1>
+          <p className="mt-4 max-w-[440px] font-body text-[16px] leading-loose text-ink-soft">{post.text}</p>
         </div>
       </div>
     </article>
