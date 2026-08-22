@@ -3,24 +3,22 @@
 @tailwind utilities;
 
 :root {
-  --sky: 201 214 247; /* #C9D6F7 — periwinkle day sky */
-  --surface: 234 239 253; /* #EAEFFD — card surface, a touch lighter */
-  --ink: 44 58 140; /* #2C3A8C — deep royal blue text */
-  --ink-soft: 92 103 168; /* #5C67A8 — muted blue-purple */
-  --line: 179 193 235; /* #B3C1EB — soft hairline */
-  --rule: 26 26 46; /* #1A1A2E — bold masthead divider */
-
+  --sky: 201 214 247;
+  --surface: 234 239 253;
+  --ink: 44 58 140;
+  --ink-soft: 92 103 168;
+  --line: 179 193 235;
+  --rule: 92 103 168;
   color-scheme: light;
 }
 
 .dark {
-  --sky: 14 16 36; /* #0E1024 — midnight sky */
-  --surface: 23 25 53; /* #171935 — card surface */
-  --ink: 226 229 250; /* #E2E5FA — pale lavender text */
-  --ink-soft: 148 153 194; /* #9499C2 — muted lavender-grey */
-  --line: 45 48 89; /* #2D3059 — subtle divider */
-  --rule: 226 229 250; /* #E2E5FA — bright masthead divider */
-
+  --sky: 14 16 36;
+  --surface: 23 25 53;
+  --ink: 226 229 250;
+  --ink-soft: 148 153 194;
+  --line: 45 48 89;
+  --rule: 148 153 194;
   color-scheme: dark;
 }
 
@@ -39,7 +37,6 @@ body {
   color: #1A1A2E;
 }
 
-/* visible keyboard focus */
 a:focus-visible,
 button:focus-visible {
   outline: 2px solid rgb(var(--ink));
@@ -55,13 +52,22 @@ button:focus-visible {
   }
 }
 
-/* the bold masthead divider lines, as seen in the reference */
 .rule {
   height: 1px;
-  background-color: rgb(var(--rule));
+  background-color: rgb(var(--rule) / 0.7);
 }
 
 .hairline {
   height: 1px;
   background-color: rgb(var(--line));
+}
+
+.directory-line {
+  border-color: rgb(var(--line) / 0.75);
+  border-width: 1px;
+}
+
+.font-script {
+  font-family: var(--font-script), cursive;
+  font-weight: 400;
 }
