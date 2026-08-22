@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import DragonflyMark from "@/components/DragonflyMark";
 import ThemeToggle from "@/components/ThemeToggle";
 import { CATEGORIES } from "@/lib/posts";
 import Image from "next/image";
@@ -30,16 +29,14 @@ export default function Header() {
 
         <Link
           href="/"
-          className="mt-2 block text-center font-script text-[42px] leading-none text-ink sm:text-[56px] md:text-[64px]"
+          className="mt-2 block text-center font-script text-[48px] leading-[0.9] text-ink sm:text-[64px] md:text-[76px]"
         >
           Moonboy Newsletter
         </Link>
 
         <div className="mt-8">
           <div className="rule" />
-          <div className="mt-[3px] rule" />
 
-          {/* Desktop nav */}
           <nav className="hidden items-center justify-center gap-8 py-3 md:flex">
             {NAV_LINKS.map((link) => (
               <Link
@@ -50,16 +47,9 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/login"
-              className="rounded-full border border-ink px-4 py-1 font-ui text-[12px] font-semibold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-ink hover:text-sky"
-            >
-              Log in
-            </Link>
             <ThemeToggle />
           </nav>
 
-          {/* Mobile bar: hamburger + theme toggle */}
           <div className="flex items-center justify-center gap-3 py-3 md:hidden">
             <button
               type="button"
@@ -68,21 +58,9 @@ export default function Header() {
               onClick={() => setOpen((v) => !v)}
               className="flex h-9 w-9 flex-col items-center justify-center gap-[5px]"
             >
-              <span
-                className={`block h-[1.5px] w-6 bg-ink transition-transform duration-200 ${
-                  open ? "translate-y-[6.5px] rotate-45" : ""
-                }`}
-              />
-              <span
-                className={`block h-[1.5px] w-6 bg-ink transition-opacity duration-150 ${
-                  open ? "opacity-0" : "opacity-100"
-                }`}
-              />
-              <span
-                className={`block h-[1.5px] w-6 bg-ink transition-transform duration-200 ${
-                  open ? "-translate-y-[6.5px] -rotate-45" : ""
-                }`}
-              />
+              <span className={`block h-[1.5px] w-6 bg-ink transition-transform duration-200 ${open ? "translate-y-[6.5px] rotate-45" : ""}`} />
+              <span className={`block h-[1.5px] w-6 bg-ink transition-opacity duration-150 ${open ? "opacity-0" : "opacity-100"}`} />
+              <span className={`block h-[1.5px] w-6 bg-ink transition-transform duration-200 ${open ? "-translate-y-[6.5px] -rotate-45" : ""}`} />
             </button>
             <ThemeToggle />
           </div>
@@ -90,12 +68,7 @@ export default function Header() {
           <div className="rule" />
         </div>
 
-        {/* Mobile nav panel */}
-        <div
-          className={`mx-auto overflow-hidden transition-[max-height] duration-300 ease-in-out md:hidden ${
-            open ? "max-h-96" : "max-h-0"
-          }`}
-        >
+        <div className={`mx-auto overflow-hidden transition-[max-height] duration-300 ease-in-out md:hidden ${open ? "max-h-96" : "max-h-0"}`}>
           <nav className="flex flex-col items-center gap-1 py-4">
             {NAV_LINKS.map((link) => (
               <Link
@@ -107,13 +80,6 @@ export default function Header() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/login"
-              onClick={() => setOpen(false)}
-              className="mt-3 rounded-full border border-ink px-5 py-1.5 font-ui text-[12px] font-semibold uppercase tracking-[0.1em] text-ink"
-            >
-              Log in
-            </Link>
           </nav>
         </div>
       </div>
