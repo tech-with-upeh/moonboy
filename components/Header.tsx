@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 import { CATEGORIES } from "@/lib/posts";
+import Image from "next/image";
 
 const NAV_LINKS = [{ label: "home", href: "/" }, ...CATEGORIES.map((c) => ({
   label: c.label,
@@ -17,7 +18,18 @@ export default function Header() {
     <header className="px-6 pt-8 md:px-10 md:pt-10">
       <div className="mx-auto max-w-page">
         <div className="mx-auto max-w-4xl">
-          <Link href="/" className="block text-center font-script text-[48px] leading-[0.9] text-ink sm:text-[64px] md:text-[76px]">
+          <div className="flex justify-center">
+            <Image
+              src="/butterflyh.png"
+              width={80}
+              height={80}
+              alt="Dragonfly mark"
+              className="h-20 w-20 md:h-24 md:w-24"
+              priority
+            />
+          </div>
+
+          <Link href="/" className="mt-3 block text-center font-script text-[48px] leading-[0.9] text-ink sm:text-[64px] md:text-[76px]">
             Moonboy Newsletter
           </Link>
 
