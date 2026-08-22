@@ -1,0 +1,101 @@
+import StatCard from "@/components/admin/StatCard";
+import Donut from "@/components/admin/Donut";
+import BarList from "@/components/admin/BarList";
+import { getPostsWithStats, getTotals } from "@/lib/admin";
+
+function IconDoc() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M6 3.5h9l4.5 4.5V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function IconHeart() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M12 20.5s-7.5-4.6-10-9.3C.5 8 2 4.5 5.5 4c2.1-.3 4 .8 6.5 3 2.5-2.2 4.4-3.3 6.5-3 3.5.5 5 4 3.5 7.2-2.5 4.7-10 9.3-10 9.3Z" />
+    </svg>
+  );
+}
+function IconMessage() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <path d="M4 5.5h16v10H9.5L5 19.5v-4H4v-10Z" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
+  );
+}
+function IconClock() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+export default function AdminAnalytics() {
+  const posts = getPostsWithStats();
+  const totals = getTotals();
+
+  const topByLikes = [...posts]
+    .sort((a, b) => b.likes - a.likes)
+    .slice(0, 5)
+    .map((p) => ({ label: p.title, value: p.likes }));
+
+  const topByComments = [...posts]
+    .sort((a, b) => b.commentCount - a.commentCount)
+    .slice(0, 5)
+    .map((p) => ({ label: p.title, value: p.commentCount }));
+
+  return (
+    <div className="px-6 py-8 md:px-10">
+      <h1 className="font-script text-2xl text-ink">Analytics</h1>
+      <p className="mt-1 font-body text-[14px] text-ink-soft">
+        How your posts are performing, at a glance.
+      </p>
+
+      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatCard label="Total posts" value={totals.totalPosts} icon={<IconDoc />} />
+        <StatCard label="Total likes" value={totals.totalLikes} icon={<IconHeart />} />
+        <StatCard label="Total comments" value={totals.totalComments} icon={<IconMessage />} />
+        <StatCard label="Avg. read time" value={`${totals.avgReadTime}m`} icon={<IconClock />} />
+      </div>
+
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="border border-line bg-surface p-6">
+          <h2 className="font-script text-lg text-ink">
+            Engagement split
+          </h2>
+          <div className="mt-5">
+            <Donut
+              centerLabel="Total engagement"
+              centerValue={totals.totalLikes + totals.totalComments}
+              segments={[
+                { label: "Likes", value: totals.totalLikes, color: "#F2B705" },
+                { label: "Comments", value: totals.totalComments, color: "#181828" },
+              ]}
+            />
+          </div>
+        </div>
+
+        <div className="border border-line bg-surface p-6">
+          <h2 className="font-script text-lg text-ink">
+            Top posts by likes
+          </h2>
+          <div className="mt-5">
+            <BarList items={topByLikes} color="#F2B705" />
+          </div>
+        </div>
+
+        <div className="border border-line bg-surface p-6 lg:col-span-2">
+          <h2 className="font-script text-lg text-ink">
+            Top posts by comments
+          </h2>
+          <div className="mt-5">
+            <BarList items={topByComments} color="#2F6F6B" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

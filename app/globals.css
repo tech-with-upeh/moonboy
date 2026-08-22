@@ -1,26 +1,67 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --sky: 201 214 247; /* #C9D6F7 — periwinkle day sky */
+  --surface: 234 239 253; /* #EAEFFD — card surface, a touch lighter */
+  --ink: 44 58 140; /* #2C3A8C — deep royal blue text */
+  --ink-soft: 92 103 168; /* #5C67A8 — muted blue-purple */
+  --line: 179 193 235; /* #B3C1EB — soft hairline */
+  --rule: 26 26 46; /* #1A1A2E — bold masthead divider */
+
+  color-scheme: light;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.dark {
+  --sky: 14 16 36; /* #0E1024 — midnight sky */
+  --surface: 23 25 53; /* #171935 — card surface */
+  --ink: 226 229 250; /* #E2E5FA — pale lavender text */
+  --ink-soft: 148 153 194; /* #9499C2 — muted lavender-grey */
+  --line: 45 48 89; /* #2D3059 — subtle divider */
+  --rule: 226 229 250; /* #E2E5FA — bright masthead divider */
+
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: rgb(var(--sky));
+  color: rgb(var(--ink));
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+::selection {
+  background-color: #E8B04B;
+  color: #1A1A2E;
+}
+
+/* visible keyboard focus */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid rgb(var(--ink));
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* the bold masthead divider lines, as seen in the reference */
+.rule {
+  height: 1px;
+  background-color: rgb(var(--rule));
+}
+
+.hairline {
+  height: 1px;
+  background-color: rgb(var(--line));
 }
