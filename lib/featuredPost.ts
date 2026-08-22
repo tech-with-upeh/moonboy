@@ -1,13 +1,15 @@
 export interface FeaturedPost {
-  photo: string | null; // data URL, uploaded from /admin
+  photo: string | null;
   title: string;
   text: string;
+  link: string;
 }
 
 export const FEATURED_POST_KEY = "moonboy-featured-post";
 
 export const DEFAULT_FEATURED_POST: FeaturedPost = {
   photo: null,
-  title: "About this newsletter",
-  text: "Moonboy Newsletter is a little corner of the internet for musings, thoughts, poetry, stories, and playlists — written slow, mostly at night, and shared because keeping it all to myself stopped feeling right. Thanks for stopping by.",
+  title: "Blue Almonds",
+  text: "A little corner for the music I want to share on the blog — songs, playlists, and sounds worth lingering over.",
+  link: "",
 };
