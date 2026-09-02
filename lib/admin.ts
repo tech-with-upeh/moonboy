@@ -4,13 +4,26 @@ import { toPost, type Post } from "@/lib/posts";
 export interface PostWithStats extends Post { likes: number; commentCount: number; }
 export interface CommentWithPost { id: string; name: string; initials: string; date: string; body: string; status: "APPROVED" | "PENDING" | "REJECTED"; slug: string; postTitle: string; }
 
-export async function getPostsWithStats(): Promise<PostWithStats[]> {
-  const rows = await db.post.findMany({ where: { published: true }, orderBy: { date: "desc" } });
+async function withStats(rows: Parameters<typeof toPost>[]) {
   return Promise.all(rows.map(async (row) => {
-    const [likes, commentCount] = await Promise.all([db.postLike.count({ where: { postId: row.id } }), db.comment.count({ where: { postId: row.id, status: "APPROVED" } })]);
+    const [likes, commentCount] = await Promise.all([
+      db.postLike.count({ where: { postId: row.id } }),
+      db.comment.count({ where: { postId: row.id, status: "APPROVED" } }),
+    ]);
     return { ...toPost(row), likes, commentCount };
   }));
 }
+
+export async function getPostsWithStats(): Promise<PostWithStats[]> {
+  const rows = await db.post.findMany({ where: { published: true }, orderBy: { date: "desc" } });
+  return withStats(rows);
+}
+
+export async function getAdminPostsWithStats(): Promise<PostWithStats[]> {
+  const rows = await db.post.findMany({ orderBy: { date: "desc" } });
+  return withStats(rows);
+}
+
 export async function getAllPosts(): Promise<Post[]> { const rows = await db.post.findMany({ where: { published: true }, orderBy: { date: "desc" } }); return rows.map(toPost); }
 export async function getPostBySlug(slug: string): Promise<Post | null> { const row = await db.post.findFirst({ where: { slug, published: true } }); return row ? toPost(row) : null; }
 export async function getAllComments(): Promise<CommentWithPost[]> {
