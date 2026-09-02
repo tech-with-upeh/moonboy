@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getVisitorId, VISITOR_COOKIE } from "@/lib/visitor";
@@ -10,6 +11,7 @@ function eventType(action: Action) { return { like: "LIKE", unlike: "UNLIKE", co
 function setVisitorCookie(response: NextResponse, visitorId: string) { response.cookies.set(VISITOR_COOKIE, visitorId, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 365 * 2, path: "/" }); }
 function cleanText(value: string) { return value.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim(); }
 function looksLikeSpam(name: string, body: string) { const text = `${name} ${body}`.toLowerCase(); const urls = text.match(/https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|xyz|top|click|shop)\b/g) ?? []; if (urls.length >= 3) return true; if (/(.)\1{9,}/.test(body)) return true; const words = body.split(/\s+/).filter(Boolean); return words.length >= 8 && new Set(words.map((word) => word.toLowerCase())).size <= 2; }
+function ipHash(request: NextRequest) { const forwarded = request.headers.get("x-forwarded-for"); const ip = (forwarded?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown"); return createHash("sha256").update(`${process.env.ADMIN_SESSION_SECRET ?? "moonboy"}:${ip}`).digest("hex"); }
 
 export async function GET(request: NextRequest) {
   const slug = request.nextUrl.searchParams.get("slug")?.trim();
@@ -45,12 +47,16 @@ export async function POST(request: NextRequest) {
     if (!name || !comment) return NextResponse.json({ error: "name and comment are required" }, { status: 400 });
     if (name.length > 80 || comment.length > 2000) return NextResponse.json({ error: "Comment is too long" }, { status: 400 });
     const since = new Date(Date.now() - WINDOW_MS);
-    const recentComments = await db.comment.count({ where: { visitorId, createdAt: { gte: since } } });
-    if (recentComments >= MAX_COMMENTS_PER_WINDOW) return NextResponse.json({ error: "You're posting comments too quickly. Please try again in a few minutes." }, { status: 429 });
+    const hash = ipHash(request);
+    const [visitorRecent, ipRecent] = await Promise.all([
+      db.comment.count({ where: { visitorId, createdAt: { gte: since } } }),
+      db.comment.count({ where: { ipHash: hash, createdAt: { gte: since } } }),
+    ]);
+    if (Math.max(visitorRecent, ipRecent) >= MAX_COMMENTS_PER_WINDOW) return NextResponse.json({ error: "You're posting comments too quickly. Please try again in a few minutes." }, { status: 429 });
     const previous = await db.comment.findFirst({ where: { visitorId, postId: post.id }, orderBy: { createdAt: "desc" }, select: { body: true } });
     if (previous?.body.toLowerCase() === comment.toLowerCase()) return NextResponse.json({ error: "You've already posted that comment." }, { status: 409 });
     const spam = looksLikeSpam(name, comment);
-    await db.comment.create({ data: { postId: post.id, visitorId, name, body: comment, status: spam ? "PENDING" : "APPROVED" } });
+    await db.comment.create({ data: { postId: post.id, visitorId, ipHash: hash, name, body: comment, status: spam ? "PENDING" : "APPROVED" } });
     await db.postEvent.create({ data: { postId: post.id, visitorId, type: eventType(action), referrer, device, browser } });
     const response = NextResponse.json({ ok: true, moderated: spam });
     setVisitorCookie(response, visitorId);
