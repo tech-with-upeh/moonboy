@@ -5,20 +5,22 @@ const region = process.env.B2_REGION;
 const accessKeyId = process.env.B2_KEY_ID;
 const secretAccessKey = process.env.B2_APP_KEY;
 
-if (!endpoint || !region || !accessKeyId || !secretAccessKey) {
-  // The client is created lazily by getB2Client so normal app routes can still boot
-  // when B2 has not been configured yet.
-}
+let b2Client: S3Client | null = null;
 
 export function getB2Client() {
   if (!endpoint || !region || !accessKeyId || !secretAccessKey) {
     throw new Error("Backblaze B2 storage is not configured.");
   }
-  return new S3Client({
-    region,
-    endpoint,
-    credentials: { accessKeyId, secretAccessKey },
-  });
+
+  if (!b2Client) {
+    b2Client = new S3Client({
+      region,
+      endpoint,
+      credentials: { accessKeyId, secretAccessKey },
+    });
+  }
+
+  return b2Client;
 }
 
 export function getB2PublicUrl(key: string) {
