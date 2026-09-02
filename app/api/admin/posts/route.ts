@@ -3,11 +3,20 @@ import { cookies } from "next/headers";
 import { verifyAdminSession, ADMIN_SESSION_COOKIE } from "@/lib/auth";
 import { db } from "@/lib/db";
 
-function slugify(value: string) {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-}
+function slugify(value: string) { return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 function unauthorized() { return NextResponse.json({ error: "Unauthorized." }, { status: 401 }); }
 function sessionOk() { return Boolean(verifyAdminSession(cookies().get(ADMIN_SESSION_COOKIE)?.value)); }
+
+export async function GET(request: Request) {
+  if (!sessionOk()) return unauthorized();
+  try {
+    const id = new URL(request.url).searchParams.get("id");
+    if (!id) return NextResponse.json({ error: "Post id is required." }, { status: 400 });
+    const post = await db.post.findUnique({ where: { id } });
+    if (!post) return NextResponse.json({ error: "Post not found." }, { status: 404 });
+    return NextResponse.json({ post });
+  } catch (error) { console.error("Get admin post failed", error); return NextResponse.json({ error: "Unable to load the post." }, { status: 500 }); }
+}
 
 export async function POST(request: Request) {
   if (!sessionOk()) return unauthorized();
@@ -43,12 +52,10 @@ export async function PATCH(request: Request) {
     if (!id) return NextResponse.json({ error: "Post id is required." }, { status: 400 });
     const post = await db.post.findUnique({ where: { id } });
     if (!post) return NextResponse.json({ error: "Post not found." }, { status: 404 });
-
     if (action === "hide" || action === "show") {
       const updated = await db.post.update({ where: { id }, data: { published: action === "show" } });
       return NextResponse.json({ ok: true, post: { id: updated.id, slug: updated.slug, published: updated.published } });
     }
-
     if (action !== "edit") return NextResponse.json({ error: "A valid action is required." }, { status: 400 });
     const title = typeof body.title === "string" ? body.title.trim() : post.title;
     const slug = slugify(typeof body.slug === "string" && body.slug.trim() ? body.slug : post.slug);
