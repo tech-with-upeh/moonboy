@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import ThemeToggle from "@/components/ThemeToggle";
 import { CATEGORIES } from "@/lib/posts";
 import Image from "next/image";
 
@@ -47,7 +46,7 @@ export default function Header() {
             {NAV_LINKS.map((link) => (
               <Link key={link.href} href={link.href} className="font-script text-xl text-ink-soft transition-colors hover:text-ink">{link.label}</Link>
             ))}
-            <ThemeToggle />
+       
           </nav>
           <div className="flex items-center justify-center gap-3 py-3 md:hidden">
             <button type="button" aria-label={open ? "Close menu" : "Open menu"} aria-expanded={open} onClick={() => setOpen((v) => !v)} className="flex h-9 w-9 flex-col items-center justify-center gap-[5px]">
@@ -55,7 +54,7 @@ export default function Header() {
               <span className={`block h-[1.5px] w-6 bg-ink transition-opacity duration-150 ${open ? "opacity-0" : "opacity-100"}`} />
               <span className={`block h-[1.5px] w-6 bg-ink transition-transform duration-200 ${open ? "-translate-y-[6.5px] -rotate-45" : ""}`} />
             </button>
-            <ThemeToggle />
+        
           </div>
           <div className="rule" />
         </div>

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Lora, Quicksand, WindSong } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 
 const windsong = WindSong({
   subsets: ["latin"],
@@ -25,7 +25,7 @@ const quicksand = Quicksand({
 });
 
 export const metadata: Metadata = {
-  title: "Moonboy Newsletter",
+  title: "Jaylynne's Spot",
   description: "Musings, thoughts, poetry, stories, and playlists. Thanks for stopping by.",
   icons: {
     icon: "/icon.png",

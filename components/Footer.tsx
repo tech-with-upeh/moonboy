@@ -44,7 +44,7 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
                     {link.label}
                   </Link>
                 ))}
-                <Link href="/contact" className="mt-2 rounded-full border border-line px-5 py-2 font-ui text-[12px] font-semibold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-ink hover:text-sky">
+                <Link href="/contact" className="mt-2  px-5 py-2 font-ui text-[12px] font-semibold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-ink hover:text-sky">
                   Send a Message
                 </Link>
               </nav>
