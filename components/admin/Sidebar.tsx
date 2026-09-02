@@ -5,46 +5,14 @@ import { usePathname, useRouter } from "next/navigation";
 import Avatar from "@/components/Avatar";
 import ThemeToggle from "@/components/ThemeToggle";
 
-function IconDashboard() { return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.2"/></svg>; }
-function IconPosts() { return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 3.5h9l4.5 4.5V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" strokeLinejoin="round"/><path d="M15 3.5V8h4.5" strokeLinejoin="round"/><path d="M8 12h8M8 15.5h8M8 8.5h3" strokeLinecap="round"/></svg>; }
-function IconEditor() { return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 20l1-4.2L15.5 5.3a1.5 1.5 0 0 1 2.1 0l1.1 1.1a1.5 1.5 0 0 1 0 2.1L8.2 19 4 20Z" strokeLinejoin="round"/><path d="M14 7l3 3" strokeLinecap="round"/></svg>; }
-function IconAnalytics() { return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 20V4M4 20h16" strokeLinecap="round"/><path d="M8 16v-4M12.5 16V7M17 16v-7" strokeLinecap="round"/></svg>; }
-function IconComments() { return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 5.5h16v10H9.5L5 19.5v-4H4v-10Z" strokeLinejoin="round" strokeLinecap="round"/></svg>; }
-function IconSettings() { return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2.1-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2.1 1.2l-2.3-.9-2 3.4 2 1.5a7 7 0 0 0 0 2.4l-2 1.5 2.3 3.4 2.3-.9a7 7 0 0 0 2.1 1.2L10 21h4l.5-2.6a7 7 0 0 0 2.1-1.2l2.3.9 2-3.4-2-1.5c.07-.4.1-.8.1-1.2Z" strokeLinejoin="round"/></svg>; }
-function IconArrowLeft() { return <svg viewBox="0 0 24 24" className="h-[16px] w-[16px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 5 4 12l7 7M4 12h16" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
-function IconHome() { return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 11.5 12 4l8 7.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 10v9.5h12V10" strokeLinejoin="round"/></svg>; }
-function IconLogout() { return <svg viewBox="0 0 24 24" className="h-[17px] w-[17px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9" strokeLinecap="round" strokeLinejoin="round"/></svg>; }
-
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/admin", icon: IconDashboard },
-  { label: "Homepage", href: "/admin/featured", icon: IconHome },
-  { label: "Posts", href: "/admin/posts", icon: IconPosts },
-  { label: "Editor", href: null, icon: IconEditor },
-  { label: "Analytics", href: "/admin/analytics", icon: IconAnalytics },
-  { label: "Comments", href: "/admin/comments", icon: IconComments },
-];
-
-export default function Sidebar() {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  async function handleLogout() {
-    try { await fetch("/api/admin/logout", { method: "POST" }); }
-    finally { router.replace("/login"); router.refresh(); }
-  }
-
-  return (
-    <aside className="flex h-full w-full flex-col bg-night text-[#E2E5FA] md:w-64 md:shrink-0">
-      <div className="flex items-center justify-between px-6 py-6"><Link href="/" className="font-script text-2xl leading-none">Moonboy</Link><ThemeToggle variant="sidebar" /></div>
-      <div className="mx-6 mb-6 flex items-center gap-3 border-t border-b border-[#E2E5FA]/10 py-4"><Avatar name="Moonboy" initials="MB" size={34}/><div><div className="font-ui text-[13px] text-[#E2E5FA]">Moonboy</div><div className="font-ui text-[11px] text-[#E2E5FA]/50">Admin</div></div></div>
-      <nav className="flex-1 space-y-1 px-4">
-        {NAV_ITEMS.map((item) => { const Icon=item.icon; const active=item.href ? pathname===item.href : false; if (!item.href) return <div key={item.label} className="flex cursor-not-allowed items-center justify-between rounded-md px-3 py-2.5 text-[#E2E5FA]/40" title="Coming soon"><span className="flex items-center gap-3 font-ui text-[13px]"><Icon/>{item.label}</span><span className="rounded-full border border-[#E2E5FA]/20 px-2 py-0.5 font-ui text-[9px] uppercase tracking-[0.08em]">Soon</span></div>; return <Link key={item.label} href={item.href} className={`flex items-center gap-3 rounded-md px-3 py-2.5 font-ui text-[13px] transition-colors ${active ? "bg-moon text-[#1A1A2E]" : "text-[#E2E5FA]/70 hover:bg-[#E2E5FA]/10 hover:text-[#E2E5FA]"}`}><Icon/>{item.label}</Link>; })}
-      </nav>
-      <div className="space-y-1 px-4 pb-6">
-        <Link href="/admin/settings" className={`flex items-center gap-3 rounded-md px-3 py-2.5 font-ui text-[13px] ${pathname==="/admin/settings" ? "bg-moon text-[#1A1A2E]" : "text-[#E2E5FA]/70 hover:bg-[#E2E5FA]/10 hover:text-[#E2E5FA]"}`}><IconSettings/>Settings</Link>
-        <Link href="/" className="flex items-center gap-3 rounded-md px-3 py-2.5 font-ui text-[13px] text-[#E2E5FA]/70 hover:bg-[#E2E5FA]/10 hover:text-[#E2E5FA]"><IconArrowLeft/>Back to blog</Link>
-        <button type="button" onClick={handleLogout} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left font-ui text-[13px] text-[#E2E5FA]/70 hover:bg-[#E2E5FA]/10 hover:text-[#E2E5FA]"><IconLogout/>Log out</button>
-      </div>
-    </aside>
-  );
-}
+function IconDashboard(){return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.2"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.2"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.2"/></svg>}
+function IconPosts(){return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M6 3.5h9l4.5 4.5V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4.5a1 1 0 0 1 1-1Z" strokeLinejoin="round"/><path d="M15 3.5V8h4.5" strokeLinejoin="round"/><path d="M8 12h8M8 15.5h8M8 8.5h3" strokeLinecap="round"/></svg>}
+function IconEditor(){return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 20l1-4.2L15.5 5.3a1.5 1.5 0 0 1 2.1 0l1.1 1.1a1.5 1.5 0 0 1 0 2.1L8.2 19 4 20Z" strokeLinejoin="round"/><path d="M14 7l3 3" strokeLinecap="round"/></svg>}
+function IconAnalytics(){return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 20V4M4 20h16" strokeLinecap="round"/><path d="M8 16v-4M12.5 16V7M17 16v-7" strokeLinecap="round"/></svg>}
+function IconComments(){return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 5.5h16v10H9.5L5 19.5v-4H4v-10Z" strokeLinejoin="round" strokeLinecap="round"/></svg>}
+function IconSettings(){return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3.9a7 7 0 0 0-2.1-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2.1 1.2l-2.3-.9-2 3.4 2 1.5a7 7 0 0 0 0 2.4l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 2.1 1.2L10 21h4l.5-2.6a7 7 0 0 0 2.1-1.2l2.3.9 2.3-3.4-2-1.5c.07-.4.1-.8.1-1.2Z" strokeLinejoin="round"/></svg>}
+function IconArrowLeft(){return <svg viewBox="0 0 24 24" className="h-[16px] w-[16px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M11 5 4 12l7 7M4 12h16" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+function IconHome(){return <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 11.5 12 4l8 7.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 10v9.5h12V10" strokeLinejoin="round"/></svg>}
+function IconLogout(){return <svg viewBox="0 0 24 24" className="h-[17px] w-[17px]" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M10 5H5v14h5M14 8l4 4-4 4M18 12H9" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+const NAV_ITEMS=[{label:"Dashboard",href:"/admin",icon:IconDashboard},{label:"Homepage",href:"/admin/featured",icon:IconHome},{label:"Posts",href:"/admin/posts",icon:IconPosts},{label:"Editor",href:null,icon:IconEditor},{label:"Analytics",href:"/admin/analytics",icon:IconAnalytics},{label:"Comments",href:"/admin/comments",icon:IconComments}];
+export default function Sidebar(){const pathname=usePathname();const router=useRouter();async function handleLogout(){try{await fetch("/api/admin/logout",{method:"POST"});}finally{router.replace("/login");router.refresh();}}return <aside className="flex h-full w-full flex-col bg-night text-[#E2E5FA] md:w-64 md:shrink-0"><div className="flex items-center justify-between px-6 py-6"><Link href="/" className="font-script text-2xl leading-none">Moonboy</Link><ThemeToggle variant="sidebar"/></div><div className="mx-6 mb-6 flex items-center gap-3 border-t border-b border-[#E2E5FA]/10 py-4"><Avatar name="Moonboy" initials="MB" size={34}/><div><div className="font-ui text-[13px] text-[#E2E5FA]">Moonboy</div><div className="font-ui text-[11px] text-[#E2E5FA]/50">Admin</div></div></div><nav className="flex-1 space-y-1 px-4">{NAV_ITEMS.map(item=>{const Icon=item.icon;const active=item.href?pathname===item.href:false;if(!item.href)return <div key={item.label} className="flex cursor-not-allowed items-center justify-between rounded-md px-3 py-2.5 text-[#E2E5FA]/40" title="Coming soon"><span className="flex items-center gap-3 font-ui text-[13px]"><Icon/>{item.label}</span><span className="rounded-full border border-[#E2E5FA]/20 px-2 py-0.5 font-ui text-[9px] uppercase tracking-[0.08em]">Soon</span></div>;return <Link key={item.label} href={item.href} className={`flex items-center gap-3 rounded-md px-3 py-2.5 font-ui text-[13px] transition-colors ${active?"bg-moon text-[#1A1A2E]":"text-[#E2E5FA]/70 hover:bg-[#E2E5FA]/10 hover:text-[#E2E5FA]"}`}><Icon/>{item.label}</Link>})}</nav><div className="space-y-1 px-4 pb-6"><Link href="/admin/settings" className={`flex items-center gap-3 rounded-md px-3 py-2.5 font-ui text-[13px] ${pathname==="/admin/settings"?"bg-moon text-[#1A1A2E]":"text-[#E2E5FA]/70 hover:bg-[#E2E5FA]/10 hover:text-[#E2E5FA]"}`}><IconSettings/>Settings</Link><Link href="/" className="flex items-center gap-3 rounded-md px-3 py-2.5 font-ui text-[13px] text-[#E2E5FA]/70 hover:bg-[#E2E5FA]/10 hover:text-[#E2E5FA]"><IconArrowLeft/>Back to blog</Link><button type="button" onClick={handleLogout} className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left font-ui text-[13px] text-[#E2E5FA]/70 hover:bg-[#E2E5FA]/10 hover:text-[#E2E5FA]"><IconLogout/>Log out</button></div></aside>}
