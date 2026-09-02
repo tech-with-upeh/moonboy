@@ -10,54 +10,32 @@ function IconHeart({ filled }: { filled: boolean }) {
   );
 }
 
-export default function LikeButton({
-  slug,
-  initialLikes,
-  size = "md",
-}: {
-  slug: string;
-  initialLikes: number;
-  size?: "sm" | "md";
-}) {
-  const likedKey = `moonboy:liked:${slug}`;
-  const countKey = `moonboy:likeCount:${slug}`;
+export default function LikeButton({ slug, initialLikes, size = "md" }: { slug: string; initialLikes: number; size?: "sm" | "md" }) {
   const [liked, setLiked] = useState(false);
   const [count, setCount] = useState(initialLikes);
-  const [hydrated, setHydrated] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    try {
-      const storedLiked = window.localStorage.getItem(likedKey) === "1";
-      const storedCount = window.localStorage.getItem(countKey);
-      setLiked(storedLiked);
-      setCount(storedCount !== null ? Number(storedCount) : initialLikes);
-    } catch {}
-    setHydrated(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetch(`/api/social?slug=${encodeURIComponent(slug)}`)
+      .then((r) => r.ok ? r.json() : null)
+      .then((data) => { if (data) { setLiked(data.liked); setCount(data.likes); } })
+      .catch(() => {});
   }, [slug]);
 
-  function toggleLike(e: React.MouseEvent) {
-    e.preventDefault();
-    e.stopPropagation();
+  async function toggleLike(e: React.MouseEvent) {
+    e.preventDefault(); e.stopPropagation();
+    if (busy) return;
     const next = !liked;
-    const nextCount = next ? count + 1 : Math.max(0, count - 1);
-    setLiked(next);
-    setCount(nextCount);
+    setLiked(next); setCount((value) => Math.max(0, value + (next ? 1 : -1))); setBusy(true);
     try {
-      window.localStorage.setItem(likedKey, next ? "1" : "0");
-      window.localStorage.setItem(countKey, String(nextCount));
-    } catch {}
+      const response = await fetch("/api/social", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ slug, action: next ? "like" : "unlike" }) });
+      if (!response.ok) throw new Error("Like failed");
+      const data = await response.json(); setLiked(data.liked); setCount(data.likes);
+    } catch { setLiked(!next); setCount((value) => Math.max(0, value + (next ? -1 : 1))); }
+    finally { setBusy(false); }
   }
 
   const iconSize = size === "sm" ? "h-8 w-8" : "h-10 w-10";
   const textSize = size === "sm" ? "text-[13px]" : "text-[14px]";
-
-  return (
-    <button type="button" onClick={toggleLike} aria-pressed={liked} aria-label={liked ? "Unlike this post" : "Like this post"} className={`flex items-center gap-2 font-ui font-medium ${textSize} text-ink-soft transition-colors`}>
-      <span className={`flex ${iconSize} items-center justify-center rounded-full text-ink transition-colors ${hydrated && liked ? "bg-ink text-sky" : "hover:text-ink"}`}>
-        <IconHeart filled={hydrated && liked} />
-      </span>
-      <span>{count}</span>
-    </button>
-  );
+  return <button type="button" onClick={toggleLike} disabled={busy} aria-pressed={liked} aria-label={liked ? "Unlike this post" : "Like this post"} className={`flex items-center gap-2 font-ui font-medium ${textSize} text-ink-soft transition-colors disabled:opacity-60`}><span className={`flex ${iconSize} items-center justify-center rounded-full text-ink transition-colors ${liked ? "bg-ink text-sky" : "hover:text-ink"}`}><IconHeart filled={liked} /></span><span>{count}</span></button>;
 }
