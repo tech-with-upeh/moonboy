@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, ListObjectVersionsCommand } from "@aws-sdk/client-s3";
 import { cookies } from "next/headers";
 import { verifyAdminSession, ADMIN_SESSION_COOKIE } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -30,6 +30,43 @@ function imageKeysFromContent(content: string) {
   return keys;
 }
 
+async function deleteAllB2Versions(key: string) {
+  const client = getB2Client();
+  const bucket = getB2Bucket();
+  let keyMarker: string | undefined;
+  let versionIdMarker: string | undefined;
+
+  do {
+    const result = await client.send(new ListObjectVersionsCommand({
+      Bucket: bucket,
+      Prefix: key,
+      KeyMarker: keyMarker,
+      VersionIdMarker: versionIdMarker,
+      MaxKeys: 1000,
+    }));
+
+    const versions = [
+      ...(result.Versions ?? []),
+      ...(result.DeleteMarkers ?? []),
+    ];
+
+    // Prefix can technically match more than the exact key, so never delete
+    // another object that merely happens to share this prefix.
+    for (const version of versions) {
+      if (version.Key !== key || !version.VersionId) continue;
+      await client.send(new DeleteObjectCommand({
+        Bucket: bucket,
+        Key: key,
+        VersionId: version.VersionId,
+      }));
+    }
+
+    if (!result.IsTruncated) break;
+    keyMarker = result.NextKeyMarker;
+    versionIdMarker = result.NextVersionIdMarker;
+  } while (keyMarker !== undefined || versionIdMarker !== undefined);
+}
+
 async function deletePostImages(post: { cover: string | null; coverUrl: string | null; content: string }) {
   const keys = new Set<string>();
   if (post.cover?.startsWith("posts/")) keys.add(post.cover);
@@ -38,13 +75,11 @@ async function deletePostImages(post: { cover: string | null; coverUrl: string |
   for (const key of imageKeysFromContent(post.content)) keys.add(key);
   if (!keys.size) return;
 
-  const client = getB2Client();
-  const bucket = getB2Bucket();
-
-  // Delete one object at a time. This avoids opening several B2 connections at
-  // once and works with the same connection pool used by the upload route.
-  for (const Key of keys) {
-    await client.send(new DeleteObjectCommand({ Bucket: bucket, Key }));
+  // Permanently delete every stored version, including hidden/delete-marker
+  // versions. This prevents deleted post images from continuing to consume B2
+  // storage even though they are no longer visible to the site.
+  for (const key of keys) {
+    await deleteAllB2Versions(key);
   }
 }
 
