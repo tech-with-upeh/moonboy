@@ -1,28 +1,15 @@
 import type { Metadata } from "next";
-import { Lora, Quicksand, WindSong } from "next/font/google";
+import "@fontsource/windsong/400.css";
+import "@fontsource/lora/400.css";
+import "@fontsource/lora/500.css";
+import "@fontsource/lora/600.css";
+import "@fontsource/lora/400-italic.css";
+import "@fontsource/lora/500-italic.css";
+import "@fontsource/lora/600-italic.css";
+import "@fontsource/quicksand/500.css";
+import "@fontsource/quicksand/600.css";
+import "@fontsource/quicksand/700.css";
 import "./globals.css";
-
-const windsong = WindSong({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-script",
-  display: "swap",
-});
-
-const lora = Lora({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-lora",
-  display: "swap",
-});
-
-const quicksand = Quicksand({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  variable: "--font-quicksand",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Jaylynne's Spot",
@@ -47,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={windsong.variable}>
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-sky font-body text-ink antialiased">
         {/* eslint-disable-next-line @next/next/no-sync-scripts */}
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
