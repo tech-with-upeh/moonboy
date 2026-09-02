@@ -7,6 +7,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum CommentStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+enum PostEventType {
+  VIEW
+  LIKE
+  UNLIKE
+  COMMENT
+  READ_START
+  READ_COMPLETE
+}
+
 model Admin {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -35,6 +50,68 @@ model Post {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
+  likes          PostLike[]
+  comments       Comment[]
+  views          PostView[]
+  events         PostEvent[]
+
   @@index([published, date])
   @@index([category, published])
+}
+
+model PostLike {
+  id         String   @id @default(cuid())
+  postId     String
+  visitorId  String
+  createdAt  DateTime @default(now())
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, visitorId])
+  @@index([postId, createdAt])
+}
+
+model Comment {
+  id         String        @id @default(cuid())
+  postId     String
+  visitorId  String
+  name       String
+  body       String
+  status     CommentStatus @default(APPROVED)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  post       Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, status, createdAt])
+  @@index([visitorId, createdAt])
+}
+
+model PostView {
+  id         String   @id @default(cuid())
+  postId     String
+  visitorId  String
+  viewedAt   DateTime @default(now())
+  referrer   String?
+  country    String?
+  device     String?
+  browser    String?
+  post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, viewedAt])
+  @@index([postId, visitorId])
+}
+
+model PostEvent {
+  id         String         @id @default(cuid())
+  postId     String
+  visitorId  String
+  type       PostEventType
+  createdAt  DateTime       @default(now())
+  referrer   String?
+  country    String?
+  device     String?
+  browser    String?
+  post       Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId, type, createdAt])
+  @@index([postId, visitorId, createdAt])
 }
