@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Lora, Quicksand, WindSong } from "next/font/google";
-import "@/app/globals.css";
+import "./globals.css";
 
 const windsong = WindSong({
   subsets: ["latin"],
