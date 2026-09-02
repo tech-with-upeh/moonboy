@@ -6,32 +6,25 @@ import type { Post } from "@/lib/posts";
 import { seedFor } from "@/lib/social";
 
 function IconComment() {
-  return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M4 5.5h16v10H9.5L5 19.5v-4H4v-10Z" strokeLinejoin="round" strokeLinecap="round" />
-    </svg>
-  );
+  return <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 5.5h16v10H9.5L5 19.5v-4H4v-10Z" strokeLinejoin="round" strokeLinecap="round" /></svg>;
+}
+
+function PostCover({ post }: { post: Post }) {
+  if (post.coverUrl) return <img src={post.coverUrl} alt="" className="aspect-[4/3] w-full rounded-2xl border border-line object-cover" />;
+  return post.cover ? <Cover variant={post.cover} /> : <div className="aspect-[4/3] w-full rounded-2xl border border-line bg-moon" />;
 }
 
 export default function ArticleCard({ post }: { post: Post }) {
   const { likes, comments } = seedFor(post.slug);
-
   return (
     <Link href={`/${post.slug}`} className="group block">
-      <Cover variant={post.cover} />
+      <PostCover post={post} />
       <span className="mt-4 block text-center font-ui text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-soft">{post.category}</span>
       <h3 className="mt-1 text-center font-script text-[30px] leading-tight text-ink transition-colors group-hover:text-moon-deep">{post.title}</h3>
-      <div className="mt-3">
-        <PostMeta author={post.author} date={post.date} readTime={post.readTime} size="sm" />
-      </div>
+      <div className="mt-3"><PostMeta author={post.author} date={post.date} readTime={post.readTime} size="sm" /></div>
       <div className="mt-3 flex items-center justify-center gap-5">
         <LikeButton slug={post.slug} initialLikes={likes} size="sm" />
-        <span className="flex items-center gap-2 font-ui text-[13px] text-ink-soft">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full text-ink">
-            <IconComment />
-          </span>
-          {comments.length}
-        </span>
+        <span className="flex items-center gap-2 font-ui text-[13px] text-ink-soft"><span className="flex h-8 w-8 items-center justify-center rounded-full text-ink"><IconComment /></span>{comments.length}</span>
       </div>
     </Link>
   );
