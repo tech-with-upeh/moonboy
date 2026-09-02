@@ -9,6 +9,12 @@
   --ink-soft: 18 52 153;
   --line: 18 52 153;
   --rule: 18 52 153;
+
+  /* Locally bundled fonts. These never require a Google Fonts request. */
+  --font-script: "WindSong";
+  --font-lora: "Lora";
+  --font-quicksand: "Quicksand";
+
   color-scheme: light;
 }
 
