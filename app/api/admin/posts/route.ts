@@ -1,11 +1,44 @@
 import { NextResponse } from "next/server";
+import { DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { cookies } from "next/headers";
 import { verifyAdminSession, ADMIN_SESSION_COOKIE } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getB2Bucket, getB2Client } from "@/lib/b2";
 
 function slugify(value: string) { return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 function unauthorized() { return NextResponse.json({ error: "Unauthorized." }, { status: 401 }); }
 function sessionOk() { return Boolean(verifyAdminSession(cookies().get(ADMIN_SESSION_COOKIE)?.value)); }
+
+function imageKeyFromUrl(value: string | null | undefined) {
+  if (!value) return null;
+  const host = process.env.NEXT_PUBLIC_IMAGE_HOST;
+  if (!host) return null;
+  try {
+    const url = new URL(value);
+    if (url.hostname !== host) return null;
+    const key = decodeURIComponent(url.pathname.replace(/^\/+/, ""));
+    return key.startsWith("posts/") ? key : null;
+  } catch { return null; }
+}
+
+function imageKeysFromContent(content: string) {
+  const keys = new Set<string>();
+  for (const match of content.matchAll(/<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/gi)) {
+    const key = imageKeyFromUrl(match[1]);
+    if (key) keys.add(key);
+  }
+  return keys;
+}
+
+async function deletePostImages(post: { cover: string | null; coverUrl: string | null; content: string }) {
+  const keys = new Set<string>();
+  if (post.cover?.startsWith("posts/")) keys.add(post.cover);
+  const coverUrlKey = imageKeyFromUrl(post.coverUrl);
+  if (coverUrlKey) keys.add(coverUrlKey);
+  for (const key of imageKeysFromContent(post.content)) keys.add(key);
+  if (!keys.size) return;
+  await Promise.all([...keys].map((Key) => getB2Client().send(new DeleteObjectCommand({ Bucket: getB2Bucket(), Key }))));
+}
 
 export async function GET(request: Request) {
   if (!sessionOk()) return unauthorized();
@@ -46,30 +79,15 @@ export async function POST(request: Request) {
 export async function PATCH(request: Request) {
   if (!sessionOk()) return unauthorized();
   try {
-    const body = await request.json();
-    const id = typeof body.id === "string" ? body.id : "";
-    const action = body.action as "edit" | "hide" | "show" | undefined;
-    if (!id) return NextResponse.json({ error: "Post id is required." }, { status: 400 });
-    const post = await db.post.findUnique({ where: { id } });
+    const body = await request.json(); const id = typeof body.id === "string" ? body.id : ""; const action = body.action as "edit" | "hide" | "show" | undefined;
+    if (!id) return NextResponse.json({ error: "Post id is required." }, { status: 400 }); const post = await db.post.findUnique({ where: { id } });
     if (!post) return NextResponse.json({ error: "Post not found." }, { status: 404 });
-    if (action === "hide" || action === "show") {
-      const updated = await db.post.update({ where: { id }, data: { published: action === "show" } });
-      return NextResponse.json({ ok: true, post: { id: updated.id, slug: updated.slug, published: updated.published } });
-    }
+    if (action === "hide" || action === "show") { const updated = await db.post.update({ where: { id }, data: { published: action === "show" } }); return NextResponse.json({ ok: true, post: { id: updated.id, slug: updated.slug, published: updated.published } }); }
     if (action !== "edit") return NextResponse.json({ error: "A valid action is required." }, { status: 400 });
-    const title = typeof body.title === "string" ? body.title.trim() : post.title;
-    const slug = slugify(typeof body.slug === "string" && body.slug.trim() ? body.slug : post.slug);
-    const excerpt = typeof body.excerpt === "string" ? body.excerpt.trim() : post.excerpt;
-    const content = typeof body.content === "string" ? body.content.trim() : post.content;
-    const category = typeof body.category === "string" ? body.category.trim() : post.category;
-    const readTime = Number.isInteger(body.readTime) ? body.readTime : post.readTime;
-    const date = typeof body.date === "string" && body.date ? new Date(body.date) : post.date;
-    if (!title || !slug || !excerpt || !content || !category) return NextResponse.json({ error: "Title, slug, excerpt, content and category are required." }, { status: 400 });
-    if (Number.isNaN(date.getTime()) || readTime < 1 || readTime > 120) return NextResponse.json({ error: "Invalid date or read time." }, { status: 400 });
-    const duplicate = await db.post.findFirst({ where: { slug, NOT: { id } }, select: { id: true } });
-    if (duplicate) return NextResponse.json({ error: "A post with this slug already exists." }, { status: 409 });
-    const updated = await db.post.update({ where: { id }, data: { title, slug, excerpt, content, category, cover: typeof body.cover === "string" ? body.cover || null : post.cover, coverUrl: typeof body.coverUrl === "string" ? body.coverUrl || null : post.coverUrl, readTime, date, favorite: typeof body.favorite === "boolean" ? body.favorite : post.favorite, published: typeof body.published === "boolean" ? body.published : post.published } });
-    return NextResponse.json({ ok: true, post: { id: updated.id, slug: updated.slug, published: updated.published } });
+    const title = typeof body.title === "string" ? body.title.trim() : post.title; const slug = slugify(typeof body.slug === "string" && body.slug.trim() ? body.slug : post.slug); const excerpt = typeof body.excerpt === "string" ? body.excerpt.trim() : post.excerpt; const content = typeof body.content === "string" ? body.content.trim() : post.content; const category = typeof body.category === "string" ? body.category.trim() : post.category; const readTime = Number.isInteger(body.readTime) ? body.readTime : post.readTime; const date = typeof body.date === "string" && body.date ? new Date(body.date) : post.date;
+    if (!title || !slug || !excerpt || !content || !category) return NextResponse.json({ error: "Title, slug, excerpt, content and category are required." }, { status: 400 }); if (Number.isNaN(date.getTime()) || readTime < 1 || readTime > 120) return NextResponse.json({ error: "Invalid date or read time." }, { status: 400 });
+    const duplicate = await db.post.findFirst({ where: { slug, NOT: { id } }, select: { id: true } }); if (duplicate) return NextResponse.json({ error: "A post with this slug already exists." }, { status: 409 });
+    const updated = await db.post.update({ where: { id }, data: { title, slug, excerpt, content, category, cover: typeof body.cover === "string" ? body.cover || null : post.cover, coverUrl: typeof body.coverUrl === "string" ? body.coverUrl || null : post.coverUrl, readTime, date, favorite: typeof body.favorite === "boolean" ? body.favorite : post.favorite, published: typeof body.published === "boolean" ? body.published : post.published } }); return NextResponse.json({ ok: true, post: { id: updated.id, slug: updated.slug, published: updated.published } });
   } catch (error) { console.error("Update post failed", error); return NextResponse.json({ error: "Unable to update the post." }, { status: 500 }); }
 }
 
@@ -78,9 +96,10 @@ export async function DELETE(request: Request) {
   try {
     const id = new URL(request.url).searchParams.get("id") || "";
     if (!id) return NextResponse.json({ error: "Post id is required." }, { status: 400 });
-    const post = await db.post.findUnique({ where: { id }, select: { id: true } });
+    const post = await db.post.findUnique({ where: { id }, select: { id: true, cover: true, coverUrl: true, content: true } });
     if (!post) return NextResponse.json({ error: "Post not found." }, { status: 404 });
+    await deletePostImages(post);
     await db.post.delete({ where: { id } });
     return NextResponse.json({ ok: true });
-  } catch (error) { console.error("Delete post failed", error); return NextResponse.json({ error: "Unable to delete the post." }, { status: 500 }); }
+  } catch (error) { console.error("Delete post failed", error); return NextResponse.json({ error: "Unable to delete the post and its images." }, { status: 500 }); }
 }
