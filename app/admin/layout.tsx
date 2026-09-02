@@ -15,7 +15,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = verifyAdminSession(cookies().get(ADMIN_SESSION_COOKIE)?.value);
-  if (!session) redirect("/admin/login");
+  if (!session) redirect("/login");
 
   return (
     <div className="flex min-h-screen flex-col bg-surface text-ink md:flex-row">
