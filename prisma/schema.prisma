@@ -16,3 +16,25 @@ model Admin {
   updatedAt    DateTime @updatedAt
   lastLoginAt  DateTime?
 }
+
+model Post {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  excerpt        String
+  content        String
+  category       String
+  cover          String?
+  coverUrl       String?
+  date           DateTime @default(now())
+  readTime       Int      @default(1)
+  authorName     String   @default("Moonboy")
+  authorInitials String   @default("MB")
+  favorite       Boolean  @default(false)
+  published      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([published, date])
+  @@index([category, published])
+}
