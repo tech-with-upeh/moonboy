@@ -37,7 +37,15 @@ async function deletePostImages(post: { cover: string | null; coverUrl: string |
   if (coverUrlKey) keys.add(coverUrlKey);
   for (const key of imageKeysFromContent(post.content)) keys.add(key);
   if (!keys.size) return;
-  await Promise.all([...keys].map((Key) => getB2Client().send(new DeleteObjectCommand({ Bucket: getB2Bucket(), Key }))));
+
+  const client = getB2Client();
+  const bucket = getB2Bucket();
+
+  // Delete one object at a time. This avoids opening several B2 connections at
+  // once and works with the same connection pool used by the upload route.
+  for (const Key of keys) {
+    await client.send(new DeleteObjectCommand({ Bucket: bucket, Key }));
+  }
 }
 
 export async function GET(request: Request) {
