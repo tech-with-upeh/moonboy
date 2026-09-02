@@ -49,12 +49,10 @@ model Post {
   published      Boolean  @default(true)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
   likes          PostLike[]
   comments       Comment[]
   views          PostView[]
   events         PostEvent[]
-
   @@index([published, date])
   @@index([category, published])
 }
@@ -65,7 +63,6 @@ model PostLike {
   visitorId  String
   createdAt  DateTime @default(now())
   post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
   @@unique([postId, visitorId])
   @@index([postId, createdAt])
 }
@@ -74,15 +71,16 @@ model Comment {
   id         String        @id @default(cuid())
   postId     String
   visitorId  String
+  ipHash     String?
   name       String
   body       String
   status     CommentStatus @default(APPROVED)
   createdAt  DateTime      @default(now())
   updatedAt  DateTime      @updatedAt
   post       Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-
   @@index([postId, status, createdAt])
   @@index([visitorId, createdAt])
+  @@index([ipHash, createdAt])
 }
 
 model PostView {
@@ -95,7 +93,6 @@ model PostView {
   device     String?
   browser    String?
   post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-
   @@index([postId, viewedAt])
   @@index([postId, visitorId])
 }
@@ -111,7 +108,6 @@ model PostEvent {
   device     String?
   browser    String?
   post       Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
-
   @@index([postId, type, createdAt])
   @@index([postId, visitorId, createdAt])
 }
