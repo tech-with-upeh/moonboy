@@ -1,12 +1,12 @@
 import ArticleCard from "@/components/ArticleCard";
 import FeaturedPost from "@/components/FeaturedPost";
 import Footer from "@/components/Footer";
-import { getAllPosts } from "@/lib/admin";
+import { getPostsWithStats } from "@/lib/admin";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const posts = await getAllPosts();
+  const posts = await getPostsWithStats();
   const latestPosts = posts.slice(0, 6);
 
   return (
