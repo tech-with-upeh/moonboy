@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function MoonMark() {
@@ -22,6 +22,24 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+
+    fetch("/api/admin/session", { cache: "no-store" })
+      .then((response) => {
+        if (response.ok && active) {
+          router.replace("/admin");
+        }
+      })
+      .catch(() => {
+        // An unauthenticated request is expected to fail.
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -66,10 +84,7 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
-            <label
-              htmlFor="email"
-              className="mb-1.5 block font-ui text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-soft"
-            >
+            <label htmlFor="email" className="mb-1.5 block font-ui text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-soft">
               Email
             </label>
             <input
@@ -85,10 +100,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="mb-1.5 block font-ui text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-soft"
-            >
+            <label htmlFor="password" className="mb-1.5 block font-ui text-[11px] font-semibold uppercase tracking-[0.1em] text-ink-soft">
               Password
             </label>
             <input
@@ -103,11 +115,7 @@ export default function LoginPage() {
             />
           </div>
 
-          {error && (
-            <p role="alert" className="font-body text-sm text-red-600">
-              {error}
-            </p>
-          )}
+          {error && <p role="alert" className="font-body text-sm text-red-600">{error}</p>}
 
           <button
             type="submit"
