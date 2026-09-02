@@ -4,7 +4,7 @@ import { toPost, type Post } from "@/lib/posts";
 export interface PostWithStats extends Post { likes: number; commentCount: number; }
 export interface CommentWithPost { id: string; name: string; initials: string; date: string; body: string; status: "APPROVED" | "PENDING" | "REJECTED"; slug: string; postTitle: string; }
 
-async function withStats(rows: Parameters<typeof toPost>[]) {
+async function withStats(rows: Parameters<typeof toPost>[0][]) {
   return Promise.all(rows.map(async (row) => {
     const [likes, commentCount] = await Promise.all([
       db.postLike.count({ where: { postId: row.id } }),

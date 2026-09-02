@@ -7,7 +7,8 @@ type Action = "like" | "unlike" | "comment" | "view" | "read_start" | "read_comp
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_COMMENTS_PER_WINDOW = 3;
 
-function eventType(action: Action) { return { like: "LIKE", unlike: "UNLIKE", comment: "COMMENT", view: "VIEW", read_start: "READ_START", read_complete: "READ_COMPLETE" }[action] as const; }
+const EVENT_TYPES = { like: "LIKE", unlike: "UNLIKE", comment: "COMMENT", view: "VIEW", read_start: "READ_START", read_complete: "READ_COMPLETE" } as const;
+function eventType(action: Action) { return EVENT_TYPES[action]; }
 function setVisitorCookie(response: NextResponse, visitorId: string) { response.cookies.set(VISITOR_COOKIE, visitorId, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 60 * 60 * 24 * 365 * 2, path: "/" }); }
 function cleanText(value: string) { return value.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim(); }
 function looksLikeSpam(name: string, body: string) { const text = `${name} ${body}`.toLowerCase(); const urls = text.match(/https?:\/\/|www\.|\b[a-z0-9-]+\.(com|net|org|xyz|top|click|shop)\b/g) ?? []; if (urls.length >= 3) return true; if (/(.)\1{9,}/.test(body)) return true; const words = body.split(/\s+/).filter(Boolean); return words.length >= 8 && new Set(words.map((word) => word.toLowerCase())).size <= 2; }

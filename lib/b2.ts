@@ -1,5 +1,6 @@
 import { S3Client } from "@aws-sdk/client-s3";
-
+import { NodeHttpHandler } from "@smithy/node-http-handler";
+import { Agent } from "https";
 const endpoint = process.env.B2_ENDPOINT;
 const region = process.env.B2_REGION;
 const accessKeyId = process.env.B2_KEY_ID;
@@ -17,6 +18,9 @@ export function getB2Client() {
       region,
       endpoint,
       credentials: { accessKeyId, secretAccessKey },
+      requestHandler: new NodeHttpHandler({
+        httpsAgent: new Agent({ family: 4 }), // force IPv4, this network's IPv6 is unreachable
+      }),
     });
   }
 

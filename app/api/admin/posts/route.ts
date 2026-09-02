@@ -30,6 +30,38 @@ function imageKeysFromContent(content: string) {
   return keys;
 }
 
+// All B2 image keys referenced by a single post: cover, coverUrl, and any
+// <img> tags inside the post content.
+function imageKeysForPost(post: { cover: string | null; coverUrl: string | null; content: string }) {
+  const keys = new Set<string>();
+  if (post.cover?.startsWith("posts/")) keys.add(post.cover);
+  const coverUrlKey = imageKeyFromUrl(post.coverUrl);
+  if (coverUrlKey) keys.add(coverUrlKey);
+  for (const key of imageKeysFromContent(post.content)) keys.add(key);
+  return keys;
+}
+
+// Images can in principle be reused across posts (e.g. copy-pasted content).
+// Before deleting anything from B2, filter out any key still referenced by
+// some OTHER post so we never delete an image another post depends on.
+async function filterKeysStillInUse(keys: Set<string>, excludePostId: string) {
+  if (!keys.size) return keys;
+
+  const otherPosts = await db.post.findMany({
+    where: { NOT: { id: excludePostId } },
+    select: { cover: true, coverUrl: true, content: true },
+  });
+
+  const stillUsed = new Set<string>();
+  for (const other of otherPosts) {
+    for (const key of imageKeysForPost(other)) {
+      if (keys.has(key)) stillUsed.add(key);
+    }
+  }
+
+  return new Set([...keys].filter((key) => !stillUsed.has(key)));
+}
+
 async function deleteAllB2Versions(key: string) {
   const client = getB2Client();
   const bucket = getB2Bucket();
@@ -67,20 +99,37 @@ async function deleteAllB2Versions(key: string) {
   } while (keyMarker !== undefined || versionIdMarker !== undefined);
 }
 
-async function deletePostImages(post: { cover: string | null; coverUrl: string | null; content: string }) {
-  const keys = new Set<string>();
-  if (post.cover?.startsWith("posts/")) keys.add(post.cover);
-  const coverUrlKey = imageKeyFromUrl(post.coverUrl);
-  if (coverUrlKey) keys.add(coverUrlKey);
-  for (const key of imageKeysFromContent(post.content)) keys.add(key);
+// Deletes every key in `keys`, except any still referenced by another post.
+// Used both when a post is fully deleted and when an edit drops an image.
+async function deleteB2Keys(keys: Set<string>, excludePostId: string) {
   if (!keys.size) return;
+  const safeToDelete = await filterKeysStillInUse(keys, excludePostId);
+  if (!safeToDelete.size) return;
 
   // Permanently delete every stored version, including hidden/delete-marker
   // versions. This prevents deleted post images from continuing to consume B2
   // storage even though they are no longer visible to the site.
-  for (const key of keys) {
+  for (const key of safeToDelete) {
     await deleteAllB2Versions(key);
   }
+}
+
+async function deletePostImages(post: { id: string; cover: string | null; coverUrl: string | null; content: string }) {
+  await deleteB2Keys(imageKeysForPost(post), post.id);
+}
+
+// On edit, only the images that were in the OLD version of the post but are
+// no longer in the NEW version should be cleaned up. Anything still in use
+// (unchanged cover, images still present in content) must be left alone.
+async function deleteOrphanedImagesOnEdit(
+  postId: string,
+  before: { cover: string | null; coverUrl: string | null; content: string },
+  after: { cover: string | null; coverUrl: string | null; content: string }
+) {
+  const beforeKeys = imageKeysForPost(before);
+  const afterKeys = imageKeysForPost(after);
+  const droppedKeys = new Set([...beforeKeys].filter((key) => !afterKeys.has(key)));
+  await deleteB2Keys(droppedKeys, postId);
 }
 
 export async function GET(request: Request) {
@@ -130,7 +179,18 @@ export async function PATCH(request: Request) {
     const title = typeof body.title === "string" ? body.title.trim() : post.title; const slug = slugify(typeof body.slug === "string" && body.slug.trim() ? body.slug : post.slug); const excerpt = typeof body.excerpt === "string" ? body.excerpt.trim() : post.excerpt; const content = typeof body.content === "string" ? body.content.trim() : post.content; const category = typeof body.category === "string" ? body.category.trim() : post.category; const readTime = Number.isInteger(body.readTime) ? body.readTime : post.readTime; const date = typeof body.date === "string" && body.date ? new Date(body.date) : post.date;
     if (!title || !slug || !excerpt || !content || !category) return NextResponse.json({ error: "Title, slug, excerpt, content and category are required." }, { status: 400 }); if (Number.isNaN(date.getTime()) || readTime < 1 || readTime > 120) return NextResponse.json({ error: "Invalid date or read time." }, { status: 400 });
     const duplicate = await db.post.findFirst({ where: { slug, NOT: { id } }, select: { id: true } }); if (duplicate) return NextResponse.json({ error: "A post with this slug already exists." }, { status: 409 });
-    const updated = await db.post.update({ where: { id }, data: { title, slug, excerpt, content, category, cover: typeof body.cover === "string" ? body.cover || null : post.cover, coverUrl: typeof body.coverUrl === "string" ? body.coverUrl || null : post.coverUrl, readTime, date, favorite: typeof body.favorite === "boolean" ? body.favorite : post.favorite, published: typeof body.published === "boolean" ? body.published : post.published } }); return NextResponse.json({ ok: true, post: { id: updated.id, slug: updated.slug, published: updated.published } });
+    const nextCover = typeof body.cover === "string" ? body.cover || null : post.cover;
+    const nextCoverUrl = typeof body.coverUrl === "string" ? body.coverUrl || null : post.coverUrl;
+    const updated = await db.post.update({ where: { id }, data: { title, slug, excerpt, content, category, cover: nextCover, coverUrl: nextCoverUrl, readTime, date, favorite: typeof body.favorite === "boolean" ? body.favorite : post.favorite, published: typeof body.published === "boolean" ? body.published : post.published } });
+    // Clean up any B2 images dropped by this edit (swapped cover, or an image
+    // removed from the content body). Never touches images still in use by
+    // this post or referenced by any other post.
+    await deleteOrphanedImagesOnEdit(
+      id,
+      { cover: post.cover, coverUrl: post.coverUrl, content: post.content },
+      { cover: nextCover, coverUrl: nextCoverUrl, content }
+    );
+    return NextResponse.json({ ok: true, post: { id: updated.id, slug: updated.slug, published: updated.published } });
   } catch (error) { console.error("Update post failed", error); return NextResponse.json({ error: "Unable to update the post." }, { status: 500 }); }
 }
 
