@@ -1,16 +1,7 @@
-"use client";
+import AdminComments from "@/components/AdminComments";
+import { getAllComments } from "@/lib/admin";
 
-import Link from "next/link";
-import { useState } from "react";
-import Avatar from "@/components/Avatar";
-
-type Comment = { id: string; name: string; initials: string; date: string; body: string; status: "APPROVED" | "PENDING" | "REJECTED"; slug: string; postTitle: string };
-function formatDate(iso:string){return new Intl.DateTimeFormat("en-US",{month:"short",day:"numeric",year:"numeric"}).format(new Date(iso))}
-
-export default function AdminComments({ initialComments=[] }:{initialComments?:Comment[]}){
-  const [comments,setComments]=useState(initialComments); const [busy,setBusy]=useState<string|null>(null);
-  async function moderate(id:string,status:"APPROVED"|"PENDING"|"REJECTED"){setBusy(id);try{const r=await fetch("/api/admin/comments",{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify({id,status})});if(!r.ok)throw new Error();setComments(v=>v.map(c=>c.id===id?{...c,status}:c));}finally{setBusy(null)}}
-  async function remove(id:string){if(!confirm("Delete this comment permanently?"))return;setBusy(id);try{const r=await fetch(`/api/admin/comments?id=${encodeURIComponent(id)}`,{method:"DELETE"});if(!r.ok)throw new Error();setComments(v=>v.filter(c=>c.id!==id));}finally{setBusy(null)}}
-  const pending=comments.filter(c=>c.status==="PENDING").length;
-  return <div className="px-6 py-8 md:px-10"><h1 className="font-script text-2xl text-ink">Comments</h1><p className="mt-1 font-body text-[14px] text-ink-soft">{comments.length} comments{pending?` · ${pending} pending moderation`:""}.</p><div className="mt-8 border border-line bg-surface"><ul className="divide-y divide-line/70">{comments.map(comment=><li key={comment.id} className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-start sm:justify-between"><div className="flex gap-3"><Avatar name={comment.name} initials={comment.initials} size={36}/><div><div className="flex flex-wrap items-baseline gap-2"><span className="font-ui text-[13px] text-ink">{comment.name}</span><span className="font-ui text-[11px] text-ink-soft">{formatDate(comment.date)}</span><span className="font-ui text-[10px] uppercase tracking-[0.08em] text-ink-soft">{comment.status.toLowerCase()}</span></div><p className="mt-1 max-w-[520px] font-body text-[14px] leading-relaxed text-ink-soft">{comment.body}</p><Link href={`/${comment.slug}`} className="mt-2 inline-block font-ui text-[11px] uppercase tracking-[0.08em] text-ink-soft hover:text-ink">on {comment.postTitle} →</Link></div></div><div className="flex shrink-0 flex-wrap gap-2 sm:pl-4">{comment.status!=="APPROVED"&&<button disabled={busy===comment.id} onClick={()=>moderate(comment.id,"APPROVED")} className="border border-line px-3 py-1.5 font-ui text-[11px] uppercase tracking-[0.08em] text-ink">Approve</button>}{comment.status!=="REJECTED"&&<button disabled={busy===comment.id} onClick={()=>moderate(comment.id,"REJECTED")} className="border border-line px-3 py-1.5 font-ui text-[11px] uppercase tracking-[0.08em] text-ink-soft">Reject</button>}<button disabled={busy===comment.id} onClick={()=>remove(comment.id)} className="border border-line px-3 py-1.5 font-ui text-[11px] uppercase tracking-[0.08em] text-ink-soft">Delete</button></div></li>)}{comments.length===0&&<li className="px-6 py-10 text-center font-ui text-[12px] text-ink-soft">No comments yet.</li>}</ul></div></div>
+export default async function AdminCommentsPage() {
+  const comments = await getAllComments();
+  return <AdminComments initialComments={comments} />;
 }
