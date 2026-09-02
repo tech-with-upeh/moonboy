@@ -22,6 +22,11 @@ enum PostEventType {
   READ_COMPLETE
 }
 
+enum SavedContentStatus {
+  DRAFT
+  SAVED
+}
+
 model Admin {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -30,6 +35,20 @@ model Admin {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   lastLoginAt  DateTime?
+  savedContents SavedContent[]
+}
+
+model SavedContent {
+  id        String             @id @default(cuid())
+  adminId   String
+  title     String             @default("Untitled")
+  content   String             @db.Text
+  status    SavedContentStatus @default(DRAFT)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+  admin     Admin              @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, status, updatedAt])
 }
 
 model Post {
