@@ -28,7 +28,7 @@ export default function Header() {
             />
           </div>
 
-          <Link href="/" className="mt-3 block text-center font-script text-[48px] leading-[0.9] text-ink sm:text-[64px] md:text-[76px]">
+          <Link href="/" className="mt-3 block text-center font-script text-[clamp(1.953rem,calc(1.953rem+((1vw-0.2rem)*2.722)),3.45rem)] leading-[0.9] text-ink ">
             Moonboy Newsletter
           </Link>
 
