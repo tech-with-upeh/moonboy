@@ -27,7 +27,7 @@ export default function PostMeta({
     <div className="flex items-center justify-center gap-2.5">
       <Avatar name={author.name} initials={author.initials} size={avatarSize} />
       <div className={`text-left font-ui font-medium ${textSize} leading-tight text-ink-soft`}>
-        <span className="text-ink">{author.name}</span>
+        <span className="text-ink">Jaylynne</span>
         <div className="mt-0.5">
           {formatDate(date)} · {readTime} min read
         </div>

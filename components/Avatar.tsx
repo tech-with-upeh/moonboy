@@ -1,3 +1,4 @@
+import Image from "next/image";
 const PALETTE = ["#E8B04B", "#7C8FE0", "#D68FA0", "#8FBFA8"];
 
 function colorFor(name: string) {
@@ -18,7 +19,24 @@ export default function Avatar({
 }) {
   const bg = colorFor(name);
   return (
-    <div
+    <>
+    {name == "Moonboy" ?
+(    <div
+      className="flex shrink-0 items-center justify-center rounded-full"
+      style={{ width: size, height: size}}
+      aria-hidden
+    >
+      <Image
+                    src="/butterflyh.png"
+                    width={50}
+                    height={50}
+                    alt="Dragonfly mark"
+                    className="h-30 w-30"
+                    priority
+                  />
+    </div>)
+    :
+    (<div
       className="flex shrink-0 items-center justify-center rounded-full border border-ink/70"
       style={{ width: size, height: size, backgroundColor: bg }}
       aria-hidden
@@ -30,5 +48,8 @@ export default function Avatar({
         {initials}
       </span>
     </div>
+ )}
+    </>
+    
   );
 }
