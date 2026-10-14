@@ -6,9 +6,10 @@ import "@fontsource/lora/600.css";
 import "@fontsource/lora/400-italic.css";
 import "@fontsource/lora/500-italic.css";
 import "@fontsource/lora/600-italic.css";
-import "@fontsource/quicksand/500.css";
-import "@fontsource/quicksand/600.css";
-import "@fontsource/quicksand/700.css";
+import "@fontsource/libre-baskerville/400.css";
+import "@fontsource/libre-baskerville/700.css";
+import "@fontsource/libre-baskerville/400-italic.css";
+import "@fontsource/libre-baskerville/700-italic.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

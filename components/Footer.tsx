@@ -26,27 +26,51 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
   return (
     <footer className="px-6 pb-16 pt-20 md:px-10">
       <div className="mx-auto max-w-page">
-        <div className={isdual ? "grid grid-cols-1 items-center gap-8 md:grid-cols-[180px_minmax(0,1fr)_180px] md:gap-12" : "flex flex-col items-center"}>
+        <div
+          className={
+            isdual
+              ? "grid grid-cols-1 items-center gap-8 md:grid-cols-[180px_minmax(0,1fr)_180px] md:gap-12"
+              : "flex flex-col items-center"
+          }
+        >
           {isdual && (
             <div className="relative hidden h-52 w-44 justify-self-center md:block">
-              <Image src={leftImage} alt={leftAlt} fill className={`object-contain ${FLOURISH_FILTER}`} sizes="176px" />
+              <Image
+                src={leftImage}
+                alt={leftAlt}
+                fill
+                className={`object-contain ${FLOURISH_FILTER}`}
+                sizes="176px"
+              />
             </div>
           )}
 
           <div className="min-w-0">
-            <h2 className="text-center font-script text-4xl text-ink sm:text-5xl">Thanks for stopping by!</h2>
+            <h2 className="text-center font-script text-4xl text-ink sm:text-5xl">
+              Thanks for stopping by!
+            </h2>
 
             <div className="mx-auto mt-8 max-w-[360px]">
               <div className="hairline" />
               <nav className="flex flex-col items-center gap-4 py-5">
                 {FOOTER_LINKS.map((link) => (
-                  <Link key={link.href} href={link.href} className="font-ui text-[15px] text-ink transition-colors hover:text-moon-deep">
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="font-ui text-[15px] text-ink transition-colors hover:text-moon-deep"
+                  >
                     {link.label}
                   </Link>
                 ))}
-                <Link href="/contact" className="mt-2  px-5 py-2 font-ui text-[12px] font-semibold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-ink hover:text-sky">
+
+                <a
+                  href="mailto:jayeo@moonboynewsletter.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 px-5 py-2 font-ui text-[12px] font-semibold uppercase tracking-[0.1em] text-ink transition-colors hover:bg-ink hover:text-sky"
+                >
                   Send a Message
-                </Link>
+                </a>
               </nav>
               <div className="hairline" />
             </div>
@@ -54,14 +78,26 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
 
           {isdual && (
             <div className="relative hidden h-52 w-44 justify-self-center md:block">
-              <Image src={rightImage} alt={rightAlt} fill className={`object-contain ${FLOURISH_FILTER}`} sizes="176px" />
+              <Image
+                src={rightImage}
+                alt={rightAlt}
+                fill
+                className={`object-contain ${FLOURISH_FILTER}`}
+                sizes="176px"
+              />
             </div>
           )}
         </div>
 
         {!isdual && (
           <div className="relative mx-auto mt-10 h-36 w-28">
-            <Image src={leftImage} alt={leftAlt} fill className="object-contain" sizes="112px" />
+            <Image
+              src={leftImage}
+              alt={leftAlt}
+              fill
+              className="object-contain"
+              sizes="112px"
+            />
           </div>
         )}
       </div>
