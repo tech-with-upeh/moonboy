@@ -38,7 +38,7 @@ function PostCover({ post }: { post: Post }) {
   return post.cover ? (
     <Cover variant={post.cover} />
   ) : (
-    <div className="aspect-[4/3] w-full rounded-2xl border border-line bg-moon" />
+    <div className="aspect-[4/2] w-full rounded-2xl" />
   );
 }
 export default function ArticleCard({
