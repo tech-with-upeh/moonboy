@@ -55,7 +55,7 @@ model Post {
   id             String   @id @default(cuid())
   slug           String   @unique
   title          String
-  excerpt        String
+  excerpt        String   @default("")
   content        String
   category       String
   cover          String?
