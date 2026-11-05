@@ -26,13 +26,7 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
   return (
     <footer className="px-6 pb-16 pt-20 md:px-10">
       <div className="mx-auto max-w-page">
-        <div
-          className={
-            isdual
-              ? "grid grid-cols-1 items-center gap-8 md:grid-cols-[180px_minmax(0,1fr)_180px] md:gap-12"
-              : "flex flex-col items-center"
-          }
-        >
+        <div className="flex flex-col items-center">
           {/* left flourish image intentionally not rendered here anymore */}
           {isdual && (
             <div className="relative hidden h-52 w-44 justify-self-center md:block" style={{ display: "none" }}>
