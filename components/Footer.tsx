@@ -33,8 +33,9 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
               : "flex flex-col items-center"
           }
         >
+          {/* left flourish image intentionally not rendered here anymore */}
           {isdual && (
-            <div className="relative hidden h-52 w-44 justify-self-center md:block">
+            <div className="relative hidden h-52 w-44 justify-self-center md:block" style={{ display: "none" }}>
               <Image
                 src={leftImage}
                 alt={leftAlt}
@@ -76,8 +77,9 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
             </div>
           </div>
 
+          {/* right flourish image intentionally not rendered here anymore */}
           {isdual && (
-            <div className="relative hidden h-52 w-44 justify-self-center md:block">
+            <div className="relative hidden h-52 w-44 justify-self-center md:block" style={{ display: "none" }}>
               <Image
                 src={rightImage}
                 alt={rightAlt}
@@ -90,7 +92,10 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
         </div>
 
         {!isdual && (
-          <div className="relative mx-auto mt-10 h-36 w-28">
+          <div
+            className="relative mx-auto mt-10 h-36 w-28"
+            style={{ display: "none" }}
+          >
             <Image
               src={leftImage}
               alt={leftAlt}
@@ -100,6 +105,17 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
             />
           </div>
         )}
+
+        {/* bottom landscape image */}
+        <div className="relative mx-auto mt-10 h-48 w-full max-w-2xl">
+          <Image
+            src="/heads-hands.jpg"
+            alt="Footer landscape"
+            fill
+            className="object-contain"
+            sizes="(min-width: 768px) 672px, 100vw"
+          />
+        </div>
       </div>
     </footer>
   );
