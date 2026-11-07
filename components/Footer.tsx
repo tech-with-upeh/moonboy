@@ -103,7 +103,7 @@ export default function Footer({ src, alt, isdual = false }: FooterProps) {
         {/* bottom landscape image */}
         <div className="relative mx-auto mt-10 h-48 w-full max-w-2xl">
           <Image
-            src="/heads-hands.jpg"
+            src="/bottom.jpeg"
             alt="Footer landscape"
             fill
             className="object-contain"
