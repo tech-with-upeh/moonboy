@@ -8,7 +8,7 @@ export default function SiteLayout({
 }) {
   return (
     <>
-      <Header leftImageSrc="/cat.png" rightImageSrc="/littlegirl.png" />
+      <Header />
       {children}
 
 
