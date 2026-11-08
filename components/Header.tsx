@@ -23,16 +23,16 @@ export default function Header({ leftImageSrc, rightImageSrc }: HeaderProps) {
 
   return (
     <header className="px-6 pt-8 md:px-10 md:pt-10">
-      <div className="mx-auto max-w-page">
-        <div className="mx-auto max-w-4xl">
-          <div className="flex items-center justify-center gap-6 md:gap-10">
+      <div className="mx-auto w-full">
+        <div className="mx-auto w-full md:w-[85%]">
+          <div className="flex items-center justify-center md:justify-between gap-6 md:gap-10 md:px-4">
             {leftImageSrc && (
               <Image
                 src={leftImageSrc}
-                width={80}
-                height={80}
+                width={100}
+                height={100}
                 alt=""
-                className="h-14 w-14 object-contain md:h-20 md:w-20"
+                className="h-14 w-14 object-contain md:h-24 md:w-24"
               />
             )}
 
@@ -48,10 +48,10 @@ export default function Header({ leftImageSrc, rightImageSrc }: HeaderProps) {
             {rightImageSrc && (
               <Image
                 src={rightImageSrc}
-                width={80}
-                height={80}
+                width={100}
+                height={100}
                 alt=""
-                className="h-14 w-14 object-contain md:h-20 md:w-20"
+                className="h-14 w-14 object-contain md:h-24 md:w-24"
               />
             )}
           </div>
