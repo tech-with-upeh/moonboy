@@ -13,14 +13,29 @@ const NAV_LINKS = [
   })),
 ];
 
-export default function Header() {
+type HeaderProps = {
+  leftImageSrc?: string;
+  rightImageSrc?: string;
+};
+
+export default function Header({ leftImageSrc, rightImageSrc }: HeaderProps) {
   const [open, setOpen] = useState(false);
 
   return (
     <header className="px-6 pt-8 md:px-10 md:pt-10">
       <div className="mx-auto max-w-page">
         <div className="mx-auto max-w-4xl">
-          <div className="flex justify-center">
+          <div className="flex items-center justify-center gap-6 md:gap-10">
+            {leftImageSrc && (
+              <Image
+                src={leftImageSrc}
+                width={80}
+                height={80}
+                alt=""
+                className="h-14 w-14 object-contain md:h-20 md:w-20"
+              />
+            )}
+
             <Image
               src="/butterflyh.png"
               width={150}
@@ -29,6 +44,16 @@ export default function Header() {
               className="h-30 w-30"
               priority
             />
+
+            {rightImageSrc && (
+              <Image
+                src={rightImageSrc}
+                width={80}
+                height={80}
+                alt=""
+                className="h-14 w-14 object-contain md:h-20 md:w-20"
+              />
+            )}
           </div>
 
           <Link
