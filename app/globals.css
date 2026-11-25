@@ -140,3 +140,25 @@ button:focus-visible {
 .post-content [style*="text-align: right"] {
   text-align: right;
 }
+.section-featured {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url("/box4.png");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 5.5rem 1.5rem 3rem;   /* was 7rem / 4rem, so the section is shorter on phones */
+}
+
+@media (min-width: 768px) {
+  .section-featured {
+    padding: 6rem 2rem 4rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .section-featured {
+    padding: 7rem 3rem 4rem;   /* was 16rem on top, which made it huge */
+  }
+}

@@ -8,18 +8,10 @@ export const dynamic = "force-dynamic";
 export default async function Home() {
   const posts = await getPostsWithStats();
   const latestPosts = posts.slice(0, 6);
-
+ 
   return (
     <main>
       <section className="mx-auto max-w-page px-6 pb-12 pt-10 md:px-10 md:pt-14">
-        <div className="mb-5">
-          <h1 className="font-script text-5xl text-ink sm:text-6xl">
-            Blue Almonds
-          </h1>
-          <p className="mt-2 max-w-[500px] font-ui text-[13px] text-ink-soft">
-            Music I want to put on the blog.
-          </p>
-        </div>
         <FeaturedPost />
       </section>
       <section className="mx-auto max-w-page px-6 pb-5 pt-4 md:px-10">
